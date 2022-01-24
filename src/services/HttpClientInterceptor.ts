@@ -1,17 +1,18 @@
 import axios, { AxiosRequestConfig } from "axios";
 
-export const CMCApiClient = axios.create({
-  baseURL: process.env.REACT_APP_CMC_BASE_URL,
+export const defaultApiClient = axios.create({
+  baseURL: process.env.REACT_APP_DEFAULT_URL,
 });
 
-CMCApiClient.interceptors.request.use(
+defaultApiClient.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     if (config.headers === undefined) {
       config.headers = {};
     }
-    config.headers["X-CMC_PRO_API_KEY"] =
-      process.env.REACT_APP_CMC_API_KEY || "";
+    const token = localStorage.getItem("token");
+    if (token) config.headers["Authorization"] = token;
     config.headers["Accept"] = "application/json";
+
     return config;
   },
   (error) => {
