@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { toast } from "react-toastify";
 
 // mui
@@ -11,21 +11,20 @@ import { Container, Button } from "./style";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { loginUserModalState } from "../../state/atoms/modal";
 import { isLoggedState } from "../../state/atoms/auth";
-import { userInfoState } from "../../state/atoms/user";
 
 // services
-import { postCryptoCurrency } from "../../services/CryptoCurrencyApi";
+import { putCryptoCurrency } from "../../services/CryptoCurrencyApi";
 
 interface Props {
   name: string;
   alias: string;
   enabled: boolean;
+  _id: string;
 }
 
-export const SavedCoinCard: FC<Props> = ({ name, alias, enabled }) => {
+export const SavedCoinCard: FC<Props> = ({ name, alias, enabled, _id }) => {
   // recoil
   const isLogedUser = useRecoilValue(isLoggedState);
-  const userInfo = useRecoilValue(userInfoState);
   const setLoginModal = useSetRecoilState(loginUserModalState);
 
   const [enabledState, setEnabledState] = useState(enabled);
@@ -33,21 +32,23 @@ export const SavedCoinCard: FC<Props> = ({ name, alias, enabled }) => {
   const handleEnabledChange = () => {
     if (isLogedUser) {
       setEnabledState(!enabledState);
+      if (!enabledState) {
+        putCryptoCurrency(_id, { enabled: true }).then(({ data }) => {
+          if (data.ok) {
+            toast.success("Currency successfully updated");
+          }
+        });
+      } else {
+        putCryptoCurrency(_id, { enabled: false }).then(({ data }) => {
+          if (data.ok) {
+            toast.success("Currency successfully updated");
+          }
+        });
+      }
     } else {
       setLoginModal(true);
     }
   };
-
-  useEffect(() => {
-    // if (added) {
-    //   postCryptoCurrency({
-    //     user_id: userInfo._id,
-    //     name: name,
-    //     alias: symbol,
-    //     enabled: true,
-    //   }).then((data) => toast.success("Successfull coin added"));
-    // }
-  }, [enabledState]);
 
   return (
     <Container>
@@ -67,7 +68,7 @@ export const SavedCoinCard: FC<Props> = ({ name, alias, enabled }) => {
 
       <Grid item xs={4} style={{ display: "flex", justifyContent: "end" }}>
         <Button enabled={enabledState} onClick={handleEnabledChange}>
-          {enabled ? "Enabled" : "Disabled"}
+          {enabledState ? "Enabled" : "Disabled"}
         </Button>
       </Grid>
     </Container>

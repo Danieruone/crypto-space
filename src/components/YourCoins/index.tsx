@@ -1,26 +1,96 @@
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+
+// mui
 import { Skeleton, Typography } from "@mui/material";
+import { TextField, Button, CircularProgress, Grid } from "@mui/material";
 
 // components
 import { SavedCoinCard } from "../SavedCoinCard";
 
 // services
-import { getCryptoCurrenciesList } from "../../services/CryptoCurrencyApi";
+import {
+  getCryptoCurrenciesList,
+  postCryptoCurrency,
+} from "../../services/CryptoCurrencyApi";
 
 export const YourCoins = () => {
   const [coinList, setcoinList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingPost, setIsFetchingPost] = useState(false);
 
-  useEffect(() => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const fetchCoins = () => {
     setIsLoading(true);
     getCryptoCurrenciesList()
       .then(({ data }) => setcoinList(data.currencies))
       .catch((err) => console.log(err))
       .finally(() => setIsLoading(false));
+  };
+
+  const createCurrency = (values: any) => {
+    setIsFetchingPost(true);
+    postCryptoCurrency({
+      name: values.name,
+      alias: values.alias,
+      enabled: true,
+    })
+      .then(({ data }) => {
+        if (data.ok) {
+          reset();
+          fetchCoins();
+          toast.success("Currency successfully added");
+        }
+      })
+      .catch((err) => {
+        toast.error(err.response.data.err.message);
+      })
+      .finally(() => setIsFetchingPost(false));
+  };
+
+  useEffect(() => {
+    fetchCoins();
   }, []);
 
   return (
     <div>
+      <Grid item xs={12}>
+        <form
+          onSubmit={handleSubmit(createCurrency)}
+          style={{ marginBottom: 20 }}
+        >
+          <TextField
+            label="Name"
+            variant="outlined"
+            style={{ marginRight: 10 }}
+            {...register("name", { required: true })}
+            error={errors.name}
+          />
+          <TextField
+            label="Alias"
+            variant="outlined"
+            style={{ marginRight: 10 }}
+            {...register("alias", { required: true })}
+            error={errors.alias}
+          />
+
+          {isFetchingPost ? (
+            <CircularProgress style={{ marginLeft: 30, marginTop: 5 }} />
+          ) : (
+            <Button variant="outlined" type="submit" style={{ height: 55 }}>
+              Create
+            </Button>
+          )}
+        </form>
+      </Grid>
+
       {isLoading ? (
         <div>
           <Skeleton animation="wave" height={80} />

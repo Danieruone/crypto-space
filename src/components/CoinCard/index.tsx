@@ -11,7 +11,6 @@ import { Container, Button } from "./style";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { loginUserModalState } from "../../state/atoms/modal";
 import { isLoggedState } from "../../state/atoms/auth";
-import { userInfoState } from "../../state/atoms/user";
 
 // services
 import {
@@ -36,7 +35,6 @@ export const CoinCard: FC<Props> = ({
 }) => {
   // recoil
   const isLogedUser = useRecoilValue(isLoggedState);
-  const userInfo = useRecoilValue(userInfoState);
   const setLoginModal = useSetRecoilState(loginUserModalState);
 
   const [added, setAdded] = useState(
@@ -48,7 +46,6 @@ export const CoinCard: FC<Props> = ({
       setAdded(!added);
       if (!added) {
         postCryptoCurrency({
-          user_id: userInfo._id,
           name: name,
           alias: symbol,
           enabled: true,
