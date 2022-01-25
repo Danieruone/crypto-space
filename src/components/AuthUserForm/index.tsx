@@ -16,7 +16,7 @@ import { TextField, Button, CircularProgress } from "@mui/material";
 import { Container } from "./style";
 
 // services
-import { loginService } from "../../services/Auth";
+import { loginService, registerService } from "../../services/Auth";
 
 interface Props {
   isLoginForm: boolean;
@@ -42,21 +42,37 @@ export const AuthUserForm: FC<Props> = ({
   } = useForm();
 
   const onSubmit = (values: any) => {
-    setIsLoading(true);
-    loginService(values)
-      .then(({ data }) => {
-        if (data.ok) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user_info", JSON.stringify(data.user));
-          setUserInfo(data.user);
-          setLoggedState(true);
-          handleClose();
-        } else {
-          toast.error(data.error.message);
-        }
+    if (isLoginForm) {
+      setIsLoading(true);
+      loginService(values)
+        .then(({ data }) => {
+          if (data.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user_info", JSON.stringify(data.user));
+            setUserInfo(data.user);
+            setLoggedState(true);
+            handleClose();
+          } else {
+            toast.error(data.error.message);
+          }
+        })
+        .catch((err) => toast.error(err.response.data.err.message))
+        .finally(() => setIsLoading(false));
+    } else {
+      registerService({
+        name: `${values.first_name} ${values.last_name}`,
+        email: values.email,
+        password: values.password,
       })
-      .catch((err) => toast.error(err.response.data.err.message))
-      .finally(() => setIsLoading(false));
+        .then(({ data }) => {
+          if (data.ok) {
+            setIsLoginForm(true);
+            reset();
+            toast.success("User successfully created");
+          }
+        })
+        .catch((err) => toast.error(err.response.data.err.message));
+    }
   };
 
   useEffect(() => {
