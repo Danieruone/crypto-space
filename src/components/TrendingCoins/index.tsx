@@ -4,11 +4,19 @@ import { Skeleton } from "@mui/material";
 // components
 import { CoinCard } from "../CoinCard";
 
+// recoil
+import { useRecoilValue } from "recoil";
+import { isLoggedState } from "../../state/atoms/auth";
+
 // services
 import { getCryptoCurrenciesListFromCMC } from "../../services/CryptoCurrencyApi";
 
 export const TrendingCoins = () => {
+  // recoil
+  const isLogedUser = useRecoilValue(isLoggedState);
+
   const [coinList, setcoinList] = useState([]);
+  const [savedCoins, setSavedCoins] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -18,10 +26,15 @@ export const TrendingCoins = () => {
       limit: 20,
       convert: "USD",
     })
-      .then(({ data }) => setcoinList(data.data))
+      .then(({ data }) => {
+        if (data.savedCurrencies) {
+          setSavedCoins(data.savedCurrencies);
+        }
+        setcoinList(data.data);
+      })
       .catch((err) => console.log(err))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [isLogedUser]);
 
   return (
     <div>
@@ -37,7 +50,14 @@ export const TrendingCoins = () => {
           <Skeleton animation="wave" height={80} />
         </div>
       ) : (
-        coinList?.map((coin: any) => <CoinCard key={coin.id} {...coin} />)
+        coinList?.map((coin: any) => (
+          <CoinCard
+            key={coin.id}
+            {...coin}
+            savedCoins={savedCoins}
+            setSavedCoins={setSavedCoins}
+          />
+        ))
       )}
     </div>
   );

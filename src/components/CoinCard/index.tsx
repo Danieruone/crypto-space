@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { toast } from "react-toastify";
 
 // mui
@@ -14,40 +14,73 @@ import { isLoggedState } from "../../state/atoms/auth";
 import { userInfoState } from "../../state/atoms/user";
 
 // services
-import { postCryptoCurrency } from "../../services/CryptoCurrencyApi";
+import {
+  postCryptoCurrency,
+  deleteCryptoCurrency,
+} from "../../services/CryptoCurrencyApi";
 
 interface Props {
   name: string;
   symbol: string;
   quote: any;
+  savedCoins: any;
+  setSavedCoins: any;
 }
 
-export const CoinCard: FC<Props> = ({ name, symbol, quote }) => {
+export const CoinCard: FC<Props> = ({
+  name,
+  symbol,
+  quote,
+  savedCoins,
+  setSavedCoins,
+}) => {
   // recoil
   const isLogedUser = useRecoilValue(isLoggedState);
   const userInfo = useRecoilValue(userInfoState);
   const setLoginModal = useSetRecoilState(loginUserModalState);
 
-  const [added, setadded] = useState(false);
+  const [added, setAdded] = useState(
+    savedCoins ? savedCoins.some((coin: any) => coin.alias === symbol) : false
+  );
 
   const handleAdded = () => {
     if (isLogedUser) {
-      setadded(!added);
+      setAdded(!added);
+      if (!added) {
+        postCryptoCurrency({
+          user_id: userInfo._id,
+          name: name,
+          alias: symbol,
+          enabled: true,
+        })
+          .then(({ data }) => {
+            if (data.ok) {
+              setSavedCoins([...savedCoins, data.currency]);
+              toast.success("Currency successfully added");
+            }
+          })
+          .catch((err) => {
+            setAdded(false);
+            toast.error(err.response.data.err.message);
+          });
+      } else {
+        deleteCryptoCurrency(
+          savedCoins.find((coin: any) => coin.alias === symbol)._id
+        ).then(({ data }) => {
+          if (data.ok) {
+            setSavedCoins(
+              savedCoins.filter(
+                (coin: any) => coin._id !== data.deletedCurrency._id
+              )
+            );
+            toast.success("Currency successfully removed");
+          }
+        });
+      }
     } else {
       setLoginModal(true);
     }
   };
-
-  useEffect(() => {
-    if (added) {
-      postCryptoCurrency({
-        user_id: userInfo._id,
-        name: name,
-        alias: symbol,
-        enabled: true,
-      }).then((data) => toast.success("Successfull coin added"));
-    }
-  }, [added]);
 
   return (
     <Container>

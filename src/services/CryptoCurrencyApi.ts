@@ -17,3 +17,7 @@ export async function getCryptoCurrenciesList() {
 export async function postCryptoCurrency(data: CryptoCurrencyData) {
   return await defaultApiClient.post(`currency`, data);
 }
+
+export async function deleteCryptoCurrency(id: string) {
+  return await defaultApiClient.delete(`currency/${id}`);
+}

@@ -22,11 +22,13 @@ export const LoginUserModal: FC<Props> = ({ loginModal, handleClose }) => {
     >
       <DialogTitle>{isLoginForm ? "Login" : "Register"}</DialogTitle>
       <DialogContent>
-        <AuthUserForm
-          isLoginForm={isLoginForm}
-          setIsLoginForm={setIsLoginForm}
-          handleClose={handleClose}
-        />
+        <div style={{ width: 400 }}>
+          <AuthUserForm
+            isLoginForm={isLoginForm}
+            setIsLoginForm={setIsLoginForm}
+            handleClose={handleClose}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

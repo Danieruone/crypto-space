@@ -71,14 +71,14 @@ export const AuthUserForm: FC<Props> = ({
           <TextField
             label="First name"
             variant="outlined"
-            style={{ marginBottom: 20 }}
+            style={{ marginBottom: 10 }}
             {...register("first_name", { required: true })}
             error={errors.first_name}
           />
           <TextField
             label="Last name"
             variant="outlined"
-            style={{ marginBottom: 20 }}
+            style={{ marginBottom: 10 }}
             {...register("last_name", { required: true })}
             error={errors.last_name}
           />
@@ -87,7 +87,7 @@ export const AuthUserForm: FC<Props> = ({
       <TextField
         label="Email"
         variant="outlined"
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 10 }}
         {...register("email", { required: true })}
         error={errors.email}
       />
@@ -95,12 +95,19 @@ export const AuthUserForm: FC<Props> = ({
         label="Password"
         variant="outlined"
         type={"password"}
-        style={{ marginBottom: 20 }}
+        style={{ marginBottom: 10 }}
         {...register("password", { required: true })}
         error={errors.password}
       />
 
-      <div style={{ marginTop: 20, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          marginTop: 20,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         {isLoading ? (
           <CircularProgress />
         ) : (

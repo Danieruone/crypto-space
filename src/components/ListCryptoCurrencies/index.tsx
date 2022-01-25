@@ -13,7 +13,7 @@ interface Props {
 
 export const ListCryptoCurrencies: FC<Props> = ({ currentOption }) => {
   return (
-    <Grid item xs={12} style={{ padding: "3rem 0" }}>
+    <Grid item xs={12}>
       {currentOption === 0 && <TrendingCoins />}
       {currentOption === 1 && <YourCoins />}
     </Grid>

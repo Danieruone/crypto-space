@@ -1,34 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // mui
-import {
-  Container,
-  Grid,
-  Typography,
-  Chip,
-  Stack,
-  Avatar,
-} from "@mui/material";
+import { Container, Grid, Typography, Chip, Stack } from "@mui/material";
 
 // recoil
 import { useRecoilState, useRecoilValue } from "recoil";
 import { isLoggedState } from "../../state/atoms/auth";
 import { loginUserModalState } from "../../state/atoms/modal";
-import { userInfoState } from "../../state/atoms/user";
 
 // components
 import { LoginUserModal } from "../../components/LoginUserModal";
+import { UserInfoBLock } from "../../components/UserInfoBLock";
+import { ListCryptoCurrencies } from "../../components/ListCryptoCurrencies";
 
 // styles
 import { LoginButton } from "./styles";
 
-// components
-import { ListCryptoCurrencies } from "../../components/ListCryptoCurrencies";
-
 export const MainPage = () => {
   // recoil
   const isLogedUser = useRecoilValue(isLoggedState);
-  const userInfo = useRecoilValue(userInfoState);
   const [loginModal, setLoginModal] = useRecoilState(loginUserModalState);
 
   const [currentOption, setcurrentOption] = useState(0);
@@ -36,6 +26,12 @@ export const MainPage = () => {
   const handleClose = () => {
     setLoginModal(false);
   };
+
+  useEffect(() => {
+    if (!isLogedUser) {
+      setcurrentOption(0);
+    }
+  }, [isLogedUser]);
 
   return (
     <>
@@ -50,12 +46,7 @@ export const MainPage = () => {
                 Login
               </LoginButton>
             ) : (
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Avatar style={{ marginRight: 10 }}>
-                  {userInfo.name.split("")[0]}
-                </Avatar>
-                <Typography variant={"h5"}>{userInfo.name}</Typography>
-              </div>
+              <UserInfoBLock />
             )}
           </Grid>
           <Grid item xs={12}>
@@ -78,7 +69,10 @@ export const MainPage = () => {
               />
             </Stack>
           </Grid>
-          <ListCryptoCurrencies currentOption={currentOption} />
+
+          <Grid item xs={12} style={{ padding: "3rem 0 3rem 0" }}>
+            <ListCryptoCurrencies currentOption={currentOption} />
+          </Grid>
         </Grid>
       </Container>
 
