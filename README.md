@@ -13,6 +13,7 @@ Usage:
 - React js
 - Typescript
 - Material UI
+- Recoil js
 
 ## Deploy 🚀
 
